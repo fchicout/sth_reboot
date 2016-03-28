@@ -88,7 +88,6 @@ end
 function Sonic:update(dt)
   
   if self.vy == 0  and (love.keyboard.isDown("d") or love.keyboard.isDown("D") ) then
-    -- Jump implementation. Needs to fix quad animation
     self.state = "jump";
     self.vy = self.jump_height;
     return;
@@ -96,11 +95,20 @@ function Sonic:update(dt)
   if self.vy ~= 0 then 
     self.y = self.y + self.vy*dt;
     self.vy = self.vy - self.gravity *dt;
-    
+    self.iteration = self.iteration+1;
+    if self.orientation == "left" then  
+      self.x = self.x - 3;
+    elseif self.orientation == "right" then
+      self.x = self.x + 3;
+    end
     if self.y < 0 then
       self.vy = 0;
       self.y = 0;
     end
+    if (self.iteration > table.getn(self.quads["jump"])) then
+        self.iteration = 1;
+        self.idleTimer = 7; --Time to wait for animation after the completion of the 1st cycle
+      end
   elseif love.keyboard.isDown("left") then
     -- Walk left
     self.state = "walk";
@@ -138,9 +146,9 @@ function Sonic:update(dt)
       if (love.keyboard.isDown("left")) then
         self.x = self.x - 7;
       end
-      if self.iteration > table.getn(self.quads["walk"]) then
+      if self.iteration > table.getn(self.quads[self.state]) then
         self.iteration = 0;
-        --TODO: Develop animation of sonic running!
+        self.animationTime = 0.2; --TODO: Develop animation of sonic running!
       end
     end
   elseif self.state == "crouch" then
