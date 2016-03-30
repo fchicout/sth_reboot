@@ -1,0 +1,3 @@
+[submodule "lib/CharAnim"]
+	path = lib/CharAnim
+	url = https://github.com/fchicout/CharAnim.git
