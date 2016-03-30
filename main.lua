@@ -1,13 +1,18 @@
-require 'src/base/chars/sonic'
+bump = require 'lib/bump'
+cron = require 'lib/cron'
+sti = require 'lib/sti'
+
+require 'src/base/stages/stage0'
+
 
 function love.load()
-  Sonic:load();
+  stage0:load();
 end
 
 function love.draw()
-  Sonic:draw();
+  stage0:draw();
 end
 
 function love.update(dt)
-  Sonic:update(dt)
+  stage0:update(dt);
 end

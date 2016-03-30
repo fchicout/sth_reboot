@@ -1,5 +1,10 @@
 Sonic = {}
 
+function Sonic:loadSounds()
+  self.sounds["jump"] = love.audio.newSource("src/assets/sfx/sonic_jump.mp3");
+end
+
+
 function Sonic:loadIdleQuads()
   self.quads = {};
   self.quads["idle"]={}
@@ -17,10 +22,12 @@ function Sonic:loadWalkQuads()
   self.quads["walk"][4]=love.graphics.newQuad(555, 0, 43, 40, self.image:getDimensions());
 end
 
-
 function Sonic:loadRunQuads()
   self.quads["run"]={};
-  self.quads["run"][0]=love.graphics.newQuad(555, 0, 43, 46, self.image:getDimensions());
+  self.quads["run"][0]=love.graphics.newQuad(422, 50, 34, 38, self.image:getDimensions());
+  self.quads["run"][1]=love.graphics.newQuad(455, 50, 34, 38, self.image:getDimensions());
+  self.quads["run"][2]=love.graphics.newQuad(489, 50, 34, 38, self.image:getDimensions());
+  self.quads["run"][3]=love.graphics.newQuad(523, 50, 34, 38, self.image:getDimensions());
 end
 
 function Sonic:loadJumpQuads()
@@ -40,7 +47,7 @@ function Sonic:loadCrouchQuads()
 end
 
 
-function Sonic:load()
+function Sonic:load(world)
   self.debug=true;
   self.state="idle";
   self.orientation = "right";
@@ -48,14 +55,17 @@ function Sonic:load()
   self.idleDelay = 5;
   self.iteration = 0;
   self.x = 0;
-  self.y = 0;
+  self.y = 400;
   self.vy = 0;
   self.gravity = 400;
   self.jump_height = 300;
   self.width = 30;
   self.heigth = 50;
   self.image = love.graphics.newImage("src/assets/img/normal_sonic_sprites.png");
-
+  
+  world:add(self, self.x, self.y, self.width, self.heigth);
+  
+  
   self:loadIdleQuads();
 
   self:loadWalkQuads();
@@ -63,6 +73,9 @@ function Sonic:load()
   self:loadJumpQuads();
 
   self:loadCrouchQuads();
+
+  self.sounds= {};
+  self:loadSounds();
 end
 
 
@@ -86,15 +99,17 @@ function Sonic:draw()
 end
 
 function Sonic:update(dt)
-  
+
   if self.vy == 0  and (love.keyboard.isDown("d") or love.keyboard.isDown("D") ) then
     self.state = "jump";
+    love.audio.play(self.sounds["jump"]);
     self.vy = self.jump_height;
     return;
   end
   if self.vy ~= 0 then 
-    self.y = self.y + self.vy*dt;
-    self.vy = self.vy - self.gravity *dt;
+    self.y = self.y - self.vy*dt;
+    self.vy = self.vy - self.gravity*dt;
+    
     self.iteration = self.iteration+1;
     if self.orientation == "left" then  
       self.x = self.x - 3;
@@ -106,9 +121,9 @@ function Sonic:update(dt)
       self.y = 0;
     end
     if (self.iteration > table.getn(self.quads["jump"])) then
-        self.iteration = 1;
-        self.idleTimer = 7; --Time to wait for animation after the completion of the 1st cycle
-      end
+      self.iteration = 1;
+      self.idleTimer = 7; --Time to wait for animation after the completion of the 1st cycle
+    end
   elseif love.keyboard.isDown("left") then
     -- Walk left
     self.state = "walk";
@@ -142,6 +157,28 @@ function Sonic:update(dt)
       self.iteration=self.iteration+1;
       if (love.keyboard.isDown("right")) then
         self.x = self.x + 7;
+        if (self.iteration == table.getn(self.quads[self.state])) then
+          self.state = "run";
+        end
+      end
+      if (love.keyboard.isDown("left")) then
+        self.x = self.x - 7;
+        if (self.iteration == table.getn(self.quads[self.state])) then
+          self.state = "run"
+        end
+      end
+
+    end
+  elseif self.state == "crouch" then
+    self.animationTimer = self.animationTimer + dt;
+    self.iteration = 1;
+  elseif self.state == "run" then
+    self.animationTimer = self.animationTimer + dt;
+    if (self.animationTimer > 0.2) then
+      self.animationTimer = 0.1;
+      self.iteration=self.iteration+1;
+      if (love.keyboard.isDown("right")) then
+        self.x = self.x + 7;
       end
       if (love.keyboard.isDown("left")) then
         self.x = self.x - 7;
@@ -151,8 +188,5 @@ function Sonic:update(dt)
         self.animationTime = 0.2; --TODO: Develop animation of sonic running!
       end
     end
-  elseif self.state == "crouch" then
-    self.animationTimer = self.animationTimer + dt;
-    self.iteration = 1;
   end
 end
