@@ -1,5 +1,24 @@
 Sonic = {}
 
+Sonic.debug=true;
+Sonic.state="idle";
+Sonic.orientation = "right";
+Sonic.animationTimer= 0.1;
+Sonic.idleDelay = 5;
+Sonic.iteration = 0;
+Sonic.x = 0;
+Sonic.y = 400;
+Sonic.vy = 0;
+Sonic.gravity = 400;
+Sonic.jump_height = 300;
+Sonic.width = 30;
+Sonic.heigth = 50;
+
+Sonic.image_path = 'src/assets/img/';
+Sonic.sfx_path = 'src/assets/sfx/';
+Sonic.image = love.graphics.newImage(Sonic.image_path .. "normal_sonic_sprites.png");
+
+
 function Sonic:loadSounds()
   self.sounds["jump"] = love.audio.newSource("src/assets/sfx/sonic_jump.mp3");
 end
@@ -9,7 +28,7 @@ function Sonic:loadIdleQuads()
   self.quads = {};
   self.quads["idle"]={}
   for i=0,8 do
-    self.quads["idle"][i]=love.graphics.newQuad(i*33, 0, 31, 40, self.image:getDimensions());
+    self.quads["idle"][i]=love.graphics.newQuad(i*33, 0, 29, 40, self.image:getDimensions());
   end
 end
 
@@ -48,24 +67,9 @@ end
 
 
 function Sonic:load(world)
-  self.debug=true;
-  self.state="idle";
-  self.orientation = "right";
-  self.animationTimer= 0.1;
-  self.idleDelay = 5;
-  self.iteration = 0;
-  self.x = 0;
-  self.y = 400;
-  self.vy = 0;
-  self.gravity = 400;
-  self.jump_height = 300;
-  self.width = 30;
-  self.heigth = 50;
-  self.image = love.graphics.newImage("src/assets/img/normal_sonic_sprites.png");
-  
   world:add(self, self.x, self.y, self.width, self.heigth);
-  
-  
+
+
   self:loadIdleQuads();
 
   self:loadWalkQuads();
@@ -109,7 +113,7 @@ function Sonic:update(dt)
   if self.vy ~= 0 then 
     self.y = self.y - self.vy*dt;
     self.vy = self.vy - self.gravity*dt;
-    
+
     self.iteration = self.iteration+1;
     if self.orientation == "left" then  
       self.x = self.x - 3;

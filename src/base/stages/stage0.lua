@@ -1,6 +1,6 @@
 require 'src/base/chars/sonic'
 
-stage0 = {}
+stage0 = {};
 
 function stage0:load()
   self.world = bump.newWorld(48);
@@ -12,7 +12,7 @@ end
 function stage0:draw()
   self.map:draw();
   self.map:bump_draw(self.world);
-  Sonic:draw(self.map);
+  Sonic:draw();
 end
 
 function stage0:update(dt)
